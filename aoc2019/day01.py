@@ -25,7 +25,7 @@ def run() -> Tuple[int, int]:
 
     # Read input file and put into data
     data = []
-    with open("../inputs/day01.txt") as file:
+    with open("inputs/day01.txt") as file:
         for line in file:
             try:
                 data.append(int(line))

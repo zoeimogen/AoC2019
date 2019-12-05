@@ -4,44 +4,9 @@
 
 import copy
 from typing import List, Tuple
+from aoc2019.intcode import runprg
 
 Program = List[int]
-
-def bad(program: Program, ptr: int) -> int:
-    '''Invalid Opcode'''
-    raise Exception
-
-def add(program: Program, ptr: int) -> int:
-    '''Add'''
-    a = program[program[ptr+1]]
-    b = program[program[ptr+2]]
-    c = a + b
-    program[program[ptr+3]] = c
-    return ptr + 4
-
-def mul(program: Program, ptr: int) -> int:
-    '''Multiply'''
-    a = program[program[ptr+1]]
-    b = program[program[ptr+2]]
-    c = a * b
-    program[program[ptr+3]] = c
-    return ptr + 4
-
-def intcode(program: Program, ptr: int) -> int:
-    '''Run a single instruction'''
-    opcode = [bad, add, mul]
-    if program[ptr] == 99:
-        return -1
-    return opcode[program[ptr]](program, ptr)
-
-def runprg(program: Program) -> int:
-    '''Run a program'''
-    p = 0
-    while True:
-        p = intcode(program, p)
-        if p == -1:
-            break
-    return program[0]
 
 def runpart1(program: Program, noun: int, verb: int) -> int:
     '''Run part one'''
@@ -70,7 +35,7 @@ def run() -> Tuple[int, int]:
     '''Main'''
 
     # Read program and put into data
-    with open("../inputs/day02.txt") as f:
+    with open("inputs/day02.txt") as f:
         data = list(map(int, f.readline().split(',')))
 
     # Run the solution
