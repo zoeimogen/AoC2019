@@ -1,59 +1,59 @@
 #!/usr/bin/env python3
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, dangerous-default-value
 '''Advent of Code 2019 Intcode interpreter'''
 
-from typing import List
+from typing import List, Tuple, Union
 
 Program = List[int]
 
-def _bad(_: Program, __: int, ___: List[int], ____: List[int], _____: int) -> int:
+def _bad(_: Program, __: int, ___: List[int], ____: List[int], _____: List[int]) -> int:
     '''Bad instruction'''
     raise Exception()
 
-def _add(program: Program, ptr: int, args: List[int], opts: List[int], _: int) -> int:
+def _add(program: Program, ptr: int, args: List[int], opts: List[int], _: List[int]) -> int:
     '''Add'''
     program[opts[0]] = args[0] + args[1]
     return ptr + 4
 
-def _mul(program: Program, ptr: int, args: List[int], opts: List[int], _: int) -> int:
+def _mul(program: Program, ptr: int, args: List[int], opts: List[int], _: List[int]) -> int:
     '''Multiply'''
     program[opts[0]] = args[0] * args[1]
     return ptr + 4
 
-def _inp(program: Program, ptr: int, _: List[int], opts: List[int], i: int) -> int:
+def _inp(program: Program, ptr: int, _: List[int], opts: List[int], i: List[int]) -> int:
     '''Input'''
     # print(f"Setting {opts[0]} to {i}")
-    program[opts[0]] = i
+    program[opts[0]] = i.pop(0)
     return ptr + 2
 
-def _out(program: Program, ptr: int, args: List[int], __: List[int], ___: int) -> int:
+def _out(program: Program, ptr: int, args: List[int], __: List[int], ___: List[int]) -> int:
     '''Output'''
     program.append(args[0])
     return ptr + 2
 
-def _jit(_: Program, ptr: int, args: List[int], __: List[int], ___: int) -> int:
+def _jit(_: Program, ptr: int, args: List[int], __: List[int], ___: List[int]) -> int:
     '''Jump if true'''
     if args[0]:
         return args[1]
     return ptr + 3
 
-def _jif(_: Program, ptr: int, args: List[int], __: List[int], ___: int) -> int:
+def _jif(_: Program, ptr: int, args: List[int], __: List[int], ___: List[int]) -> int:
     '''Jump if false'''
     if not args[0]:
         return args[1]
     return ptr + 3
 
-def _lt(program: Program, ptr: int, args: List[int], opts: List[int], _: int) -> int:
+def _lt(program: Program, ptr: int, args: List[int], opts: List[int], _: List[int]) -> int:
     '''Less than'''
     program[opts[0]] = int(args[0] < args[1])
     return ptr + 4
 
-def _eq(program: Program, ptr: int, args: List[int], opts: List[int], _: int) -> int:
+def _eq(program: Program, ptr: int, args: List[int], opts: List[int], _: List[int]) -> int:
     '''Equals'''
     program[opts[0]] = int(args[0] == args[1])
     return ptr + 4
 
-def intcode(program: Program, ptr: int, indata: int) -> int:
+def intcode(program: Program, ptr: int, indata: List[int]) -> int:
     '''Run a single instruction'''
     opcode = [(_bad, 0, 0),
               (_add, 2, 1), # 1
@@ -104,7 +104,7 @@ def intcode(program: Program, ptr: int, indata: int) -> int:
 
     return instruction[0](program, ptr, args, opts, indata)
 
-def runprg(program: Program, indata: int = 0) -> int:
+def runprg(program: Program, indata: List[int] = [0]) -> int:
     '''Run a program'''
     p = 0
     initial_length = len(program)
@@ -118,3 +118,15 @@ def runprg(program: Program, indata: int = 0) -> int:
     if len(program) > initial_length:
         return program[-1]
     return program[0]
+
+def runprg_iterate(program: Program,
+                   indata: List[int] = [0],
+                   p: int = 0) -> Tuple[int, Union[int, None]]:
+    '''Run a program that iterates'''
+    initial_length = len(program)
+    while True:
+        p = intcode(program, p, indata)
+        if len(program) > initial_length:
+            return (p, program[-1])
+        if p == -1:
+            return (p, None)

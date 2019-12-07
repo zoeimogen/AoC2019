@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # pylint: disable=invalid-name
-'''Advent of Code 2019 Day 5 solution'''
+'''Advent of Code 2019 Day 6 solution'''
 
 from collections import defaultdict
 from typing import List, Tuple, Dict
