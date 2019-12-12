@@ -4,29 +4,23 @@
 
 import copy
 from typing import List, Tuple
-from aoc2019.intcode import runprg
+from aoc2019.intcode import Program
 
-Program = List[int]
+Prg = List[int]
 
-def runpart1(program: Program, noun: int, verb: int) -> int:
-    '''Run part one'''
+def verb_run(program: Prg, noun: int, verb: int) -> int:
+    '''Run a program with a noun and a verb'''
     prg = copy.copy(program)
     prg[1] = noun
     prg[2] = verb
-    return runprg(prg)
+    p = Program('standard', prg)
+    return p.run()[0]
 
-def runpart2(program: Program) -> int:
+def runpart2(program: Prg) -> int:
     '''Run part two'''
-    def run2(program: Program, noun: int, verb: int) -> int:
-        prg = copy.copy(program)
-        prg[1] = noun
-        prg[2] = verb
-        runprg(prg)
-        return prg[0]
-
     for x in range(0, 100):
         for y in range(0, 100):
-            if run2(program, x, y) == 19690720:
+            if verb_run(program, x, y) == 19690720:
                 return x*100 + y
 
     return 0 # Failed to find a solution
@@ -39,7 +33,7 @@ def run() -> Tuple[int, int]:
         data = list(map(int, f.readline().split(',')))
 
     # Run the solution
-    part1 = runpart1(data, 12, 2)
+    part1 = verb_run(data, 12, 2)
     part2 = runpart2(data)
     return (part1, part2)
 

@@ -3,9 +3,8 @@
 '''Advent of Code 2019 Day 7 solution
    https://adventofcode.com/2019/day/7'''
 
-import copy
 from typing import List, Tuple, Callable
-from aoc2019.intcode import runprg, runprg_iterate
+from aoc2019 import intcode
 
 Program = List[int]
 Sequencer = Callable[[List[int], Program], int]
@@ -15,7 +14,7 @@ def check_sequence(seq: List[int], prg: Program) -> int:
 
     Args:
         seq: The sequence of amplifier phase settings for this run
-        prg: The program to run. (Immutable, we use copy.copy on it)
+        prg: The program to run.
 
     Returns:
         An int containing the final amplifier output'''
@@ -24,7 +23,8 @@ def check_sequence(seq: List[int], prg: Program) -> int:
 
     # For every amplifier, run it and feed the input (i) from the previous step in to it
     for a in range(0, 5):
-        i = runprg(copy.copy(prg), [seq[a], i])
+        p = intcode.Program('standard', prg, inputs=[seq[a], i])
+        i = p.run()[0]
 
     return i
 
@@ -39,29 +39,18 @@ def check_loopback_sequence(seq: List[int], prg: Program) -> int:
         An int containing the final amplifier output'''
 
     # Make a copy of all five programs, because we need to store state
-    prgs: List[Program] = []
-    for _ in range(0, 5):
-        prgs.append(copy.copy(prg))
-
-    # Keep track of instruction pointers (IP)
-    ips = [0, 0, 0, 0, 0]
+    prgs: List[intcode.Program] = []
+    for a in range(0, 5):
+        prgs.append(intcode.Program('iterate', prg, inputs=[seq[a]]))
 
     i = 0
 
-    # Initial run through including phase input
-    for a in range(0, 5):
-        # Note that prgs is pass-by-reference, but we need to explicitly store the new IP.
-        (ips[a], new_i) = runprg_iterate(prgs[a], [seq[a], i], ips[a])
-        if new_i is None:
-            # This should never happen unless we have bad code, but it keeps the type checker happy.
-            raise Exception()
-        i = new_i
-
-    # Loopback runs. Keep running until runprg_iterate returns None, indicating it exited.
+    # Keep running until run returns None, indicating it exited.
     while True:
         for a in range(0, 5):
-            (ips[a], new_i) = runprg_iterate(prgs[a], [i], ips[a])
-            if new_i is None:
+            prgs[a].state['inputs'].append(i)
+            new_i = prgs[a].run()[0]
+            if prgs[a].state['ptr'] == -1:
                 return i
             i = new_i
 

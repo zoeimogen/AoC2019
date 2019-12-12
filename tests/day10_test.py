@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''Advent of Code 2019 Day 8 tests'''
+'''Advent of Code 2019 Day 10 tests'''
 import unittest
 import os
 import sys
@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from aoc2019 import day10 # pylint: disable=wrong-import-position
 
 class TestUM(unittest.TestCase):
-    '''Tests from day seven'''
+    '''Tests from day ten'''
     def test_day10part1(self) -> None:
         '''Part one tests'''
         grid = ['.#..#',

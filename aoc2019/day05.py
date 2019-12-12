@@ -2,9 +2,8 @@
 # pylint: disable=invalid-name
 '''Advent of Code 2019 Day 5 solution'''
 
-import copy
 from typing import List, Tuple
-from aoc2019.intcode import runprg
+from aoc2019 import intcode
 
 Program = List[int]
 
@@ -16,11 +15,10 @@ def run() -> Tuple[int, int]:
         data: Program = list(map(int, f.readline().split(',')))
 
     # Run the solution
-    prg = copy.copy(data)
-    part1 = runprg(prg, [1])
-    part2 = runprg(data, [5])
+    p1 = intcode.Program('standard', data, inputs=[1])
+    p2 = intcode.Program('standard', data, inputs=[5])
 
-    return(part1, part2)
+    return(p1.run()[-1], p2.run()[0])
 
 if __name__ == '__main__':
     print(run())

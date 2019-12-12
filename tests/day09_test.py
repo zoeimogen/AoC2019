@@ -13,12 +13,15 @@ class TestUM(unittest.TestCase):
         '''Part one tests'''
         prg = [109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99]
         prg.extend((map(int, numpy.zeros(100))))
-        intcode.runprg(prg)
-        self.assertEqual(prg[-16:], prg[:16])
+        pgm = intcode.Program('standard', prg)
+        self.assertEqual(pgm.run(), prg[:16])
 
         prg = [1102, 34915192, 34915192, 7, 4, 7, 99, 0]
         prg.extend((map(int, numpy.zeros(100))))
-        self.assertEqual(len(f"{intcode.runprg(prg)}"), 16)
+        pgm = intcode.Program('standard', prg)
+        output = pgm.run()[0]
+        self.assertEqual(len(f"{output}"), 16)
 
         prg = [104, 1125899906842624, 99]
-        self.assertEqual(intcode.runprg(prg), prg[1])
+        pgm = intcode.Program('standard', prg)
+        self.assertEqual(pgm.run()[0], prg[1])
