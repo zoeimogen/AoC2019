@@ -3,7 +3,7 @@
 
 from timeit import timeit
 
-for i in range(1, 13):
+for i in range(1, 14):
     if i in [8, 11]:
         print(' in %.2fs' % (timeit(f'print("Day {i}: %d\\n%s" % aoc2019.day{i:02}.run(), end="")',
                                     'import aoc2019.day%02d' % (i),

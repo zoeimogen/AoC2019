@@ -4,6 +4,7 @@
 
 from typing import List #, Tuple, Union, Dict, Any
 import copy
+import time
 import numpy
 
 Pgm = List[int]
@@ -25,6 +26,15 @@ class Program:
             self.state['location'] = [0, 0]
             self.state['grid'] = numpy.zeros((100, 100), int)
             self.state['output_state'] = 0
+
+        if ptype == 'arcade':
+            self.state['location'] = [0, 0]
+            self.state['grid'] = numpy.zeros((26, 40), int)
+            self.state['output_state'] = 0
+            self.state['score'] = 0
+            self.state['ball'] = 0
+            self.state['paddle'] = 0
+            self.state['show_grid'] = False
 
     @staticmethod
     def _bad(_1, _2, _3)  -> None:
@@ -50,6 +60,13 @@ class Program:
             if panel > 0:
                 panel -= 1
             self.state['pgm'][opts[0]] = panel
+        elif self.state['type'] == 'arcade':
+            if self.state['paddle'] < self.state['ball']:
+                self.state['pgm'][opts[0]] = 1
+            elif self.state['paddle'] > self.state['ball']:
+                self.state['pgm'][opts[0]] = -1
+            else:
+                self.state['pgm'][opts[0]] = 0
         else:
             self.state['pgm'][opts[0]] = self.state['inputs'].pop(0)
         self.state['ptr'] += 2
@@ -83,10 +100,52 @@ class Program:
 
             self.state['output_state'] = 0
 
+    def show_grid(self) -> None:
+        '''Shows the grid, in case you want to watch the game'''
+        print("\033[0;0H")
+        for x in self.state['grid']:
+            for y in x:
+                if y == 1:
+                    print('#', end='')
+                elif y == 2:
+                    print('*', end='')
+                elif y == 3:
+                    print('-', end='')
+                elif y == 4:
+                    print('o', end='')
+                else:
+                    print(' ', end='')
+            print('')
+        print(f"Score: {self.state['score']}")
+        time.sleep(.02)
+
+    def _out_arcade(self, arg: int) -> None:
+        if self.state['output_state'] == 0:
+            self.state['location'][0] = arg
+            self.state['output_state'] = 1
+        elif self.state['output_state'] == 1:
+            self.state['location'][1] = arg
+            self.state['output_state'] = 2
+        else:
+            if self.state['location'][0] == -1:
+                self.state['score'] = arg
+            else:
+                self.state['grid'][self.state['location'][1]][self.state['location'][0]] = arg
+                if arg == 3:
+                    self.state['paddle'] = self.state['location'][0]
+                elif arg == 4:
+                    self.state['ball'] = self.state['location'][0]
+                    if self.state['show_grid']:
+                        self.show_grid()
+
+            self.state['output_state'] = 0
+
     def _out(self, args: List[int], _)  -> None:
         '''Output'''
         if self.state['type'] == 'robot':
             self._out_robot(args[0])
+        elif self.state['type'] == 'arcade':
+            self._out_arcade(args[0])
         else:
             self.state['outputs'].append(args[0])
         self.state['ptr'] += 2
