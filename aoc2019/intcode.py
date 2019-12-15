@@ -2,12 +2,9 @@
 # pylint: disable=invalid-name
 '''Advent of Code 2019 Intcode interpreter'''
 
-from typing import List #, Tuple, Union, Dict, Any
 import copy
 import time
 import numpy
-
-Pgm = List[int]
 
 class Program:
     '''An intcode program execution environment'''
@@ -37,21 +34,21 @@ class Program:
             self.state['show_grid'] = False
 
     @staticmethod
-    def _bad(_1, _2, _3)  -> None:
+    def _bad(_1, _2, _3):
         '''Bad instruction'''
         raise Exception()
 
-    def _add(self, args: List[int], opts: List[int])  -> None:
+    def _add(self, args, opts):
         '''Add'''
         self.state['pgm'][opts[0]] = args[0] + args[1]
         self.state['ptr'] += 4
 
-    def _mul(self, args: List[int], opts: List[int])  -> None:
+    def _mul(self, args, opts):
         '''Multiply'''
         self.state['pgm'][opts[0]] = args[0] * args[1]
         self.state['ptr'] += 4
 
-    def _inp(self, _1, opts: List[int])  -> None:
+    def _inp(self, _1, opts):
         '''Input'''
         if self.state['type'] == 'robot':
             x = self.state['location'][0] + 50
@@ -71,7 +68,7 @@ class Program:
             self.state['pgm'][opts[0]] = self.state['inputs'].pop(0)
         self.state['ptr'] += 2
 
-    def _out_robot(self, arg: int) -> None:
+    def _out_robot(self, arg: int):
         if self.state['output_state'] == 0:
             # Paint
             x = self.state['location'][0] + 50
@@ -100,7 +97,7 @@ class Program:
 
             self.state['output_state'] = 0
 
-    def show_grid(self) -> None:
+    def show_grid(self):
         '''Shows the grid, in case you want to watch the game'''
         print("\033[0;0H")
         for x in self.state['grid']:
@@ -119,7 +116,7 @@ class Program:
         print(f"Score: {self.state['score']}")
         time.sleep(.02)
 
-    def _out_arcade(self, arg: int) -> None:
+    def _out_arcade(self, arg: int):
         if self.state['output_state'] == 0:
             self.state['location'][0] = arg
             self.state['output_state'] = 1
@@ -140,7 +137,7 @@ class Program:
 
             self.state['output_state'] = 0
 
-    def _out(self, args: List[int], _)  -> None:
+    def _out(self, args, _):
         '''Output'''
         if self.state['type'] == 'robot':
             self._out_robot(args[0])
@@ -150,36 +147,36 @@ class Program:
             self.state['outputs'].append(args[0])
         self.state['ptr'] += 2
 
-    def _jit(self, args: List[int], _)  -> None:
+    def _jit(self, args, _):
         '''Jump if true'''
         if args[0]:
             self.state['ptr'] = args[1]
         else:
             self.state['ptr'] += 3
 
-    def _jif(self, args: List[int], _)  -> None:
+    def _jif(self, args, _):
         '''Jump if false'''
         if not args[0]:
             self.state['ptr'] = args[1]
         else:
             self.state['ptr'] += 3
 
-    def _lt(self, args: List[int], opts: List[int])  -> None:
+    def _lt(self, args, opts):
         '''Less than'''
         self.state['pgm'][opts[0]] = int(args[0] < args[1])
         self.state['ptr'] += 4
 
-    def _eq(self, args: List[int], opts: List[int]) -> None:
+    def _eq(self, args, opts):
         '''Equals'''
         self.state['pgm'][opts[0]] = int(args[0] == args[1])
         self.state['ptr'] += 4
 
-    def _rba(self, args: List[int], _) -> None:
+    def _rba(self, args, _):
         '''Equals'''
         self.state['rel'] += args[0]
         self.state['ptr'] += 2
 
-    def intcode(self) -> None:
+    def intcode(self):
         '''Run a single instruction'''
         OPCODE = [(self._bad, 0, 0),
                   (self._add, 2, 1), # 1
@@ -248,7 +245,7 @@ class Program:
 
         instruction[0](args, opts)
 
-    def run(self) -> List[int]:
+    def run(self):
         '''Run a program'''
         while self.state['ptr'] != -1:
             # print(self.state['ptr'])
@@ -260,22 +257,3 @@ class Program:
             return self.state['outputs']
 
         return [self.state['pgm'][0]]
-
-    # def runprg_robot(program: Program) -> List[List[int]]:
-    #     '''Run a program'''
-    #     p = 0
-    #     state = {'type': 'robot',
-    #              'rel': 0,
-    #              'outputs': [],
-    #              'direction': 0,
-    #              'location': [0, 0],
-    #              'grid': numpy.zeros((100, 100), int),
-    #              'output_state': 0}
-    #     state['grid'][50][50] = 2
-    #     program.extend((map(int, numpy.zeros(1000))))
-    #     while True:
-    #         p = intcode(program, p, [], state)
-    #         if p == -1:
-    #             break
-
-    #     return state['grid']

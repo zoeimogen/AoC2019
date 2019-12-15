@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # pylint: disable=invalid-name
-'''Advent of Code 2019 Day 9 solution'''
+'''Advent of Code 2019 Day 13 solution'''
 
 from typing import List, Tuple
 from aoc2019 import intcode
