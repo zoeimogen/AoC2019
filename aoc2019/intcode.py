@@ -33,6 +33,9 @@ class Program:
             self.state['paddle'] = 0
             self.state['show_grid'] = False
 
+        if ptype == 'network':
+            self.state['idle'] = 0
+
     @staticmethod
     def _bad(_1, _2, _3):
         '''Bad instruction'''
@@ -64,6 +67,13 @@ class Program:
                 self.state['pgm'][opts[0]] = -1
             else:
                 self.state['pgm'][opts[0]] = 0
+        elif self.state['type'] == 'network':
+            if self.state['inputs']:
+                self.state['pgm'][opts[0]] = self.state['inputs'].pop(0)
+                self.state['idle'] = 0
+            else:
+                self.state['pgm'][opts[0]] = -1
+                self.state['idle'] += 1
         else:
             self.state['pgm'][opts[0]] = self.state['inputs'].pop(0)
         self.state['ptr'] += 2
